@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WeatherWiseAI.Api/WeatherWiseAI.Api.csproj" />
+    <Project Path="src/WeatherWiseAI.Application/WeatherWiseAI.Application.csproj" />
+    <Project Path="src/WeatherWiseAI.Domain/WeatherWiseAI.Domain.csproj" />
+    <Project Path="src/WeatherWiseAI.Infrastructure/WeatherWiseAI.Infrastructure.csproj" />
+    <Project Path="src/WeatherWiseAI.Shared/WeatherWiseAI.Shared.csproj" />
+  </Folder>
+</Solution>
