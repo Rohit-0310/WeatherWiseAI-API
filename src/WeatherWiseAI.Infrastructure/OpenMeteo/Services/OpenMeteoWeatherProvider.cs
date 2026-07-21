@@ -31,6 +31,10 @@ public class OpenMeteoWeatherProvider : IWeatherProvider
 
         var response = await _client.GetForecastAsync(latitude, longitude, true, tempUnit, windUnit, timezone, null, null, null, cancellationToken);
         
+        _logger.LogInformation("Raw Open-Meteo Temp: {Temp}, WeatherCode: {Code}", 
+            response?.CurrentWeather?.Temperature, 
+            response?.CurrentWeather?.WeatherCode);
+
         return _mapper.Map<WeatherResponseDto>(response);
     }
 
