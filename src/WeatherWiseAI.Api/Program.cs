@@ -1,41 +1,63 @@
-var builder = WebApplication.CreateBuilder(args);
+using Serilog;
+using WeatherWiseAI.Api;
+using WeatherWiseAI.Api.Middleware;
+using WeatherWiseAI.Application;
+using WeatherWiseAI.Infrastructure;
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+// Configure early logging
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateBootstrapLogger();
 
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.MapOpenApi();
+    Log.Information("Starting web application");
+    
+    var builder = WebApplication.CreateBuilder(args);
+
+    // 1. Configure Serilog
+    builder.Host.UseSerilog((context, services, configuration) => configuration
+        .ReadFrom.Configuration(context.Configuration)
+        .ReadFrom.Services(services)
+        .Enrich.FromLogContext()
+        .WriteTo.Console()
+        .WriteTo.File("logs/log-.txt", rollingInterval: RollingInterval.Day));
+
+    // 2. Add dependencies
+    builder.Services.AddApiServices();
+    builder.Services.AddApplicationServices();
+    builder.Services.AddInfrastructureServices(builder.Configuration);
+
+    var app = builder.Build();
+
+    // 3. Configure the HTTP request pipeline
+    app.UseMiddleware<ExceptionMiddleware>();
+
+    if (app.Environment.IsDevelopment())
+    {
+        app.UseSwagger();
+        app.UseSwaggerUI(c =>
+        {
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "WeatherWiseAI API v1");
+            c.RoutePrefix = string.Empty; // Set Swagger UI at apps root
+        });
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+    
+    app.MapHealthChecks("/health");
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-
-var summaries = new[]
+catch (Exception ex)
 {
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
-app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+    Log.CloseAndFlush();
 }
