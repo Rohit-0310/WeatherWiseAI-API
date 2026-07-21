@@ -20,6 +20,7 @@ public static class OpenMeteoServiceCollectionExtensions
         services.Configure<OpenMeteoOptions>(configuration.GetSection(OpenMeteoOptions.SectionName));
 
         services.AddTransient<OpenMeteoLoggingHandler>();
+        services.AddTransient<GeocodingUrlRewritingHandler>();
 
         services.AddRefitClient<IOpenMeteoClient>()
             .ConfigureHttpClient((sp, client) =>
@@ -34,6 +35,7 @@ public static class OpenMeteoServiceCollectionExtensions
             {
                 AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
             })
+            .AddHttpMessageHandler<GeocodingUrlRewritingHandler>()
             .AddHttpMessageHandler<OpenMeteoLoggingHandler>()
             .AddPolicyHandler(GetRetryPolicy())
             .AddPolicyHandler(GetCircuitBreakerPolicy());

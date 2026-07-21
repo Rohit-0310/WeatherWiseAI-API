@@ -1,7 +1,10 @@
 namespace WeatherWiseAI.Infrastructure.OpenMeteo.Services;
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -32,11 +35,47 @@ public class OpenMeteoLocationProvider : ILocationProvider
 
     public async Task<LocationResponseDto?> ReverseGeocodeAsync(double latitude, double longitude, string language, CancellationToken cancellationToken = default)
     {
-        _logger.LogInformation("Reverse geocoding Lat: {Lat}, Lon: {Lon}", latitude, longitude);
-        var response = await _client.ReverseGeocodeAsync(latitude, longitude, 1, language, cancellationToken);
+        _logger.LogInformation("Reverse geocoding Lat: {Latitude}, Lon: {Longitude}", latitude, longitude);
+
+        // Since Open-Meteo does not support Reverse Geocoding natively yet,
+        // we use BigDataCloud free API as a robust fallback.
+        using var httpClient = new HttpClient();
+        var url = $"https://api.bigdatacloud.net/data/reverse-geocode-client?latitude={latitude}&longitude={longitude}&localityLanguage={language}";
         
-        var result = response?.Results?.FirstOrDefault();
-        return result != null ? Map(result) : null;
+        try
+        {
+            var response = await httpClient.GetFromJsonAsync<System.Text.Json.Nodes.JsonNode>(url, cancellationToken);
+            var city = response?["city"]?.ToString() ?? response?["locality"]?.ToString();
+            if (string.IsNullOrWhiteSpace(city)) 
+            {
+                city = $"Location ({Math.Round(latitude, 2)}, {Math.Round(longitude, 2)})";
+            }
+
+            var country = response?["countryName"]?.ToString() ?? "Unknown";
+            var region = response?["principalSubdivision"]?.ToString() ?? "";
+            
+            return new LocationResponseDto
+            {
+                Name = city,
+                Latitude = latitude,
+                Longitude = longitude,
+                Country = country,
+                Region = region,
+                Timezone = "GMT"
+            };
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to perform reverse geocoding fallback.");
+            return new LocationResponseDto
+            {
+                Name = $"Location ({Math.Round(latitude, 2)}, {Math.Round(longitude, 2)})",
+                Latitude = latitude,
+                Longitude = longitude,
+                Country = "Unknown",
+                Timezone = "GMT"
+            };
+        }
     }
 
     private static LocationResponseDto Map(DTOs.OpenMeteoLocationDto src)
