@@ -20,17 +20,23 @@ Domain Layer
 
 ## Layer Responsibilities
 
+### 3. Application Layer (`WeatherWiseAI.Application`)
+
+Contains business logic, domain models, services, interfaces, CQRS elements, and mapping logic.
+
+**Key Modules:**
+*   **Weather Module:** Orchestrates external calls, validates incoming requests, and handles core domain logic (`WeatherService`, `ForecastService`, `HourlyService`).
+*   **Location Module:** Connects Geocoding API to resolve latitudes, longitudes, and string queries.
+*   **WeatherContext (Shared):** A deterministic, provider-agnostic aggregation layer (`WeatherContextBuilder`) that merges all weather, astronomy, and location data into a normalized single context graph and computes deterministic `AIHints`.
+*   **AI Module:** Contains prompt builders (`IPromptBuilder`), insights models, and abstractions ready for Gemini integration.
+
+**Rules:**
+*   Defines interfaces for external dependencies (e.g., `IWeatherProvider`, `ILocationProvider`).
+
 ### Domain (`WeatherWiseAI.Domain`)
 Contains enterprise-wide business rules, models, and domain exceptions. It has no external dependencies.
 - **Models**: `WeatherCondition`, `AiInsight`.
 - **Exceptions**: `DomainValidationException`.
-
-### Application (`WeatherWiseAI.Application`)
-Contains application-specific business rules. It implements the use cases of the system.
-- **DTOs**: Data Transfer Objects for requests and responses.
-- **Interfaces**: Abstractions for services implemented in Infrastructure.
-- **Validators**: FluentValidation classes for DTOs.
-- **Mappings**: AutoMapper profiles mapping Domain Models to DTOs.
 
 ### Infrastructure (`WeatherWiseAI.Infrastructure`)
 Contains concrete implementations of the Application interfaces. It manages all external HTTP communication.

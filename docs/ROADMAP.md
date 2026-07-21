@@ -9,18 +9,19 @@ This document outlines the development milestones for WeatherWiseAI-API.
 - [x] Setup global exception handling middleware.
 
 ## Phase 2: Weather Integration
-- [ ] Define Open-Meteo response DTOs.
-- [ ] Implement Refit interface for Open-Meteo API.
-- [ ] Create `WeatherService` in Application layer to orchestrate fetch logic.
-- [ ] Expose basic weather endpoints in API layer.
+- [x] Define Open-Meteo response DTOs.
+- [x] Implement Refit interface for Open-Meteo API.
+- [x] Create `WeatherService` in Application layer to orchestrate fetch logic.
+- [x] Expose basic weather endpoints in API layer.
 
 ## Phase 3: AI Integration
 - [ ] Register Google Gemini API Key in configurations.
 - [ ] Implement Refit interface for Google Gemini API.
 - [ ] Create `AiInsightService` in Application layer.
-- [ ] Link Weather output to AI input.
+- [x] Create provider-independent `WeatherContext` foundation.
 
 ## Phase 4: Prompt Engineering
+- [x] Create Prompt Builder abstractions (`IPromptBuilder` interfaces).
 - [ ] Implement `PromptBuilder` for Gemini requests.
 - [ ] Define basic weather summary templates.
 - [ ] Add tone and style variations (e.g., formal, witty).
