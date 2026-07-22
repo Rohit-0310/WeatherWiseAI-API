@@ -28,6 +28,18 @@ try
     builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructureServices(builder.Configuration);
 
+    // Add CORS
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("AllowFrontend",
+            policy =>
+            {
+                policy.WithOrigins("http://localhost:3000")
+                      .AllowAnyHeader()
+                      .AllowAnyMethod();
+            });
+    });
+
     var app = builder.Build();
 
     // 3. Configure the HTTP request pipeline
@@ -44,6 +56,9 @@ try
     }
 
     app.UseHttpsRedirection();
+
+    // Enable CORS
+    app.UseCors("AllowFrontend");
 
     app.UseAuthorization();
 
