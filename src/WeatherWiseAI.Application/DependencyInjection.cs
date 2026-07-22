@@ -16,6 +16,7 @@ public static class DependencyInjection
         services.AddSingleton<WeatherWiseAI.Application.Weather.Shared.Services.IWeatherConditionMapper, WeatherWiseAI.Application.Weather.Shared.Services.WeatherConditionMapper>();
         services.AddScoped<WeatherWiseAI.Application.Weather.Shared.Services.IWeatherContextBuilder, WeatherWiseAI.Application.Weather.Shared.Services.WeatherContextBuilder>();
         services.AddScoped<WeatherWiseAI.Application.Location.Interfaces.ILocationService, WeatherWiseAI.Application.Location.Services.LocationService>();
+        services.AddScoped<WeatherWiseAI.Application.Weather.Astronomy.Interfaces.IAstronomyService, WeatherWiseAI.Application.Weather.Astronomy.Services.AstronomyService>();
 
         return services;
     }

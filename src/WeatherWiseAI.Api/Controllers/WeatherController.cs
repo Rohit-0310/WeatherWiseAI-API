@@ -21,12 +21,18 @@ public class WeatherController : ControllerBase
     private readonly IWeatherService _weatherService;
     private readonly IForecastService _forecastService;
     private readonly IHourlyService _hourlyService;
+    private readonly WeatherWiseAI.Application.Weather.Astronomy.Interfaces.IAstronomyService _astronomyService;
 
-    public WeatherController(IWeatherService weatherService, IForecastService forecastService, IHourlyService hourlyService)
+    public WeatherController(
+        IWeatherService weatherService, 
+        IForecastService forecastService, 
+        IHourlyService hourlyService,
+        WeatherWiseAI.Application.Weather.Astronomy.Interfaces.IAstronomyService astronomyService)
     {
         _weatherService = weatherService;
         _forecastService = forecastService;
         _hourlyService = hourlyService;
+        _astronomyService = astronomyService;
     }
 
     /// <summary>
@@ -84,5 +90,24 @@ public class WeatherController : ControllerBase
         var response = await _hourlyService.GetHourlyForecastAsync(request, cancellationToken);
         
         return Ok(ApiResponse<HourlyResponseDto>.SuccessResponse(response));
+    }
+
+    /// <summary>
+    /// Gets astronomical data (Sunrise, Sunset, Moon Phase) for a specific location.
+    /// </summary>
+    /// <param name="request">The location parameters.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>The astronomy data.</returns>
+    [HttpGet("astronomy")]
+    [ProducesResponseType(typeof(ApiResponse<WeatherWiseAI.Application.Weather.Astronomy.Responses.AstronomyResponse>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse<object>), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult<ApiResponse<WeatherWiseAI.Application.Weather.Astronomy.Responses.AstronomyResponse>>> GetAstronomy(
+        [FromQuery] WeatherWiseAI.Application.Weather.Astronomy.Requests.AstronomyRequest request,
+        CancellationToken cancellationToken)
+    {
+        var response = await _astronomyService.GetAstronomyDataAsync(request, cancellationToken);
+        
+        return Ok(ApiResponse<WeatherWiseAI.Application.Weather.Astronomy.Responses.AstronomyResponse>.SuccessResponse(response));
     }
 }
