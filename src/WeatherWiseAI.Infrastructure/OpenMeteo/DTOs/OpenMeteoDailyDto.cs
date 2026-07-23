@@ -31,4 +31,10 @@ public class OpenMeteoDailyDto
 
     [JsonPropertyName("sunshine_duration")]
     public List<double> SunshineDuration { get; set; } = new();
+
+    [JsonPropertyName("precipitation_probability_max")]
+    public List<int> PrecipitationProbabilityMax { get; set; } = new();
+
+    [JsonPropertyName("uv_index_max")]
+    public List<double> UvIndexMax { get; set; } = new();
 }

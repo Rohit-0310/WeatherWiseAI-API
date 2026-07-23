@@ -9,15 +9,25 @@ public class GeocodingUrlRewritingHandler : DelegatingHandler
 {
     protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        if (request.RequestUri != null && 
-            (request.RequestUri.AbsolutePath.StartsWith("/v1/search", StringComparison.OrdinalIgnoreCase) || 
-             request.RequestUri.AbsolutePath.StartsWith("/v1/reverse", StringComparison.OrdinalIgnoreCase)))
+        if (request.RequestUri != null)
         {
-            var uriBuilder = new UriBuilder(request.RequestUri)
+            if (request.RequestUri.AbsolutePath.StartsWith("/v1/search", StringComparison.OrdinalIgnoreCase) || 
+                request.RequestUri.AbsolutePath.StartsWith("/v1/reverse", StringComparison.OrdinalIgnoreCase))
             {
-                Host = "geocoding-api.open-meteo.com"
-            };
-            request.RequestUri = uriBuilder.Uri;
+                var uriBuilder = new UriBuilder(request.RequestUri)
+                {
+                    Host = "geocoding-api.open-meteo.com"
+                };
+                request.RequestUri = uriBuilder.Uri;
+            }
+            else if (request.RequestUri.AbsolutePath.StartsWith("/v1/air-quality", StringComparison.OrdinalIgnoreCase))
+            {
+                var uriBuilder = new UriBuilder(request.RequestUri)
+                {
+                    Host = "air-quality-api.open-meteo.com"
+                };
+                request.RequestUri = uriBuilder.Uri;
+            }
         }
 
         return base.SendAsync(request, cancellationToken);

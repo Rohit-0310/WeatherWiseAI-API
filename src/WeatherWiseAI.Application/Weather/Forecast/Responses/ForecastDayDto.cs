@@ -9,5 +9,6 @@ public class ForecastDayDto
     public double MaxTemperature { get; set; }
     public double MinTemperature { get; set; }
     public double MaxWindSpeed { get; set; }
+    public int PrecipitationChance { get; set; }
     public WeatherConditionDto Condition { get; set; } = new();
 }

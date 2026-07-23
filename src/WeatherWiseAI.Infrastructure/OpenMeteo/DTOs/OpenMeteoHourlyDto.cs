@@ -16,4 +16,7 @@ public class OpenMeteoHourlyDto
 
     [JsonPropertyName("weathercode")]
     public List<int> WeatherCode { get; set; } = new();
+
+    [JsonPropertyName("precipitation_probability")]
+    public List<int> PrecipitationProbability { get; set; } = new();
 }

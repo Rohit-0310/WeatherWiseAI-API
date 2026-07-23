@@ -9,9 +9,19 @@ public class OpenMeteoMappingProfile : Profile
     public OpenMeteoMappingProfile()
     {
         CreateMap<OpenMeteoResponse, WeatherResponseDto>()
-            .ForMember(dest => dest.Temperature, opt => opt.MapFrom(src => src.CurrentWeather != null ? src.CurrentWeather.Temperature : 0))
-            .ForMember(dest => dest.WindSpeed, opt => opt.MapFrom(src => src.CurrentWeather != null ? src.CurrentWeather.Windspeed : 0))
-            .ForMember(dest => dest.WeatherCode, opt => opt.MapFrom(src => src.CurrentWeather != null ? src.CurrentWeather.WeatherCode : 0));
+            .ForMember(dest => dest.Temperature, opt => opt.MapFrom(src => src.Current != null ? src.Current.Temperature : (src.CurrentWeather != null ? src.CurrentWeather.Temperature : 0)))
+            .ForMember(dest => dest.WindSpeed, opt => opt.MapFrom(src => src.Current != null ? src.Current.WindSpeed : (src.CurrentWeather != null ? src.CurrentWeather.Windspeed : 0)))
+            .ForMember(dest => dest.WeatherCode, opt => opt.MapFrom(src => src.Current != null ? src.Current.WeatherCode : (src.CurrentWeather != null ? src.CurrentWeather.WeatherCode : 0)))
+            .ForMember(dest => dest.ApparentTemperature, opt => opt.MapFrom(src => src.Current != null ? src.Current.ApparentTemperature : 0))
+            .ForMember(dest => dest.RelativeHumidity, opt => opt.MapFrom(src => src.Current != null ? src.Current.RelativeHumidity : 0))
+            .ForMember(dest => dest.SurfacePressure, opt => opt.MapFrom(src => src.Current != null ? src.Current.SurfacePressure : 0))
+            .ForMember(dest => dest.Visibility, opt => opt.MapFrom(src => src.Current != null ? src.Current.Visibility : 0))
+            .ForMember(dest => dest.WindDirection, opt => opt.MapFrom(src => src.Current != null ? src.Current.WindDirection : 0))
+            .ForMember(dest => dest.IsDay, opt => opt.MapFrom(src => src.Current != null ? src.Current.IsDay : 0))
+            .ForMember(dest => dest.MaxTemperature, opt => opt.MapFrom(src => src.Daily != null && src.Daily.TemperatureMax.Count > 0 ? src.Daily.TemperatureMax[0] : 0))
+            .ForMember(dest => dest.MinTemperature, opt => opt.MapFrom(src => src.Daily != null && src.Daily.TemperatureMin.Count > 0 ? src.Daily.TemperatureMin[0] : 0))
+            .ForMember(dest => dest.UvIndex, opt => opt.MapFrom(src => src.Daily != null && src.Daily.UvIndexMax.Count > 0 ? src.Daily.UvIndexMax[0] : 0))
+            .ForMember(dest => dest.PrecipitationProbability, opt => opt.MapFrom(src => src.Daily != null && src.Daily.PrecipitationProbabilityMax.Count > 0 ? src.Daily.PrecipitationProbabilityMax[0] : 0));
 
         CreateMap<OpenMeteoResponse, WeeklyWeatherDto>()
             .ForMember(dest => dest.DailyForecasts, opt => opt.MapFrom(src => MapDailyForecasts(src.Daily)));
@@ -32,7 +42,8 @@ public class OpenMeteoMappingProfile : Profile
                 Time = System.DateTime.TryParse(hourly.Time[i], out var date) ? date : System.DateTime.MinValue,
                 Temperature = hourly.Temperature.Count > i ? hourly.Temperature[i] : 0,
                 WindSpeed = hourly.WindSpeed.Count > i ? hourly.WindSpeed[i] : 0,
-                WeatherCode = hourly.WeatherCode.Count > i ? hourly.WeatherCode[i] : 0
+                WeatherCode = hourly.WeatherCode.Count > i ? hourly.WeatherCode[i] : 0,
+                PrecipitationChance = hourly.PrecipitationProbability.Count > i ? hourly.PrecipitationProbability[i] : 0
             });
         }
         return list;
@@ -52,6 +63,7 @@ public class OpenMeteoMappingProfile : Profile
                 MaxTemperature = daily.TemperatureMax.Count > i ? daily.TemperatureMax[i] : 0,
                 MinTemperature = daily.TemperatureMin.Count > i ? daily.TemperatureMin[i] : 0,
                 MaxWindSpeed = daily.WindSpeedMax.Count > i ? daily.WindSpeedMax[i] : 0,
+                PrecipitationChance = daily.PrecipitationProbabilityMax.Count > i ? daily.PrecipitationProbabilityMax[i] : 0
             });
         }
         return list;
