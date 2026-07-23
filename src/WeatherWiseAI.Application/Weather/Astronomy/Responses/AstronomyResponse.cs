@@ -11,6 +11,9 @@ public class AstronomyResponse
     public DateTime Sunset { get; set; }
     public DateTime SolarNoon { get; set; }
     public TimeSpan DayLength { get; set; }
+    public TimeSpan SunshineDuration { get; set; }
     public string MoonPhaseName { get; set; } = string.Empty;
     public double MoonIllumination { get; set; }
+    public DateTime? MoonRise { get; set; }
+    public DateTime? MoonSet { get; set; }
 }

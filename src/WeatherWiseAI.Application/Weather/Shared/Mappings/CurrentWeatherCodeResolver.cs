@@ -18,6 +18,6 @@ public class CurrentWeatherCodeResolver : IValueResolver<WeatherResponseDto, Cur
     public WeatherConditionDto Resolve(WeatherResponseDto source, CurrentWeatherResponse destination, WeatherConditionDto destMember, ResolutionContext context)
     {
         var normalized = _mapper.MapToNormalizedCondition(source.WeatherCode);
-        return new WeatherConditionDto { Code = normalized.Name, Description = normalized.Description };
+        return new WeatherConditionDto { Code = normalized.Name, Description = normalized.Description, ProviderCode = normalized.ProviderCode };
     }
 }

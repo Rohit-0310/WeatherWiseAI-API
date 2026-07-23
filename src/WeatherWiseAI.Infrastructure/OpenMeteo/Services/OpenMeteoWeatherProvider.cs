@@ -29,7 +29,7 @@ public class OpenMeteoWeatherProvider : IWeatherProvider
         string? tempUnit = units.Equals("Imperial", StringComparison.OrdinalIgnoreCase) ? "fahrenheit" : null;
         string? windUnit = units.Equals("Imperial", StringComparison.OrdinalIgnoreCase) ? "mph" : null;
 
-        var response = await _client.GetForecastAsync(latitude, longitude, true, tempUnit, windUnit, timezone, null, null, null, cancellationToken);
+        var response = await _client.GetForecastAsync(latitude, longitude, true, tempUnit, windUnit, timezone, null, null, null, null, null, cancellationToken);
         
         _logger.LogInformation("Raw Open-Meteo Temp: {Temp}, WeatherCode: {Code}", 
             response?.CurrentWeather?.Temperature, 
@@ -46,7 +46,7 @@ public class OpenMeteoWeatherProvider : IWeatherProvider
         string? windUnit = units.Equals("Imperial", StringComparison.OrdinalIgnoreCase) ? "mph" : null;
         string dailyParams = "temperature_2m_max,temperature_2m_min,weathercode,windspeed_10m_max";
 
-        var response = await _client.GetForecastAsync(latitude, longitude, false, tempUnit, windUnit, timezone, dailyParams, null, null, cancellationToken);
+        var response = await _client.GetForecastAsync(latitude, longitude, false, tempUnit, windUnit, timezone, dailyParams, null, null, null, null, cancellationToken);
         
         return _mapper.Map<WeeklyWeatherDto>(response);
     }
@@ -59,8 +59,43 @@ public class OpenMeteoWeatherProvider : IWeatherProvider
         string? windUnit = units.Equals("Imperial", StringComparison.OrdinalIgnoreCase) ? "mph" : null;
         string hourlyParams = "temperature_2m,weathercode,windspeed_10m";
 
-        var response = await _client.GetForecastAsync(latitude, longitude, false, tempUnit, windUnit, timezone, null, hourlyParams, hours, cancellationToken);
+        var response = await _client.GetForecastAsync(latitude, longitude, false, tempUnit, windUnit, timezone, null, hourlyParams, hours, null, null, cancellationToken);
         
         return _mapper.Map<ProviderHourlyWeatherDto>(response);
+    }
+
+    public async Task<ProviderAstronomyDto> GetAstronomyDataAsync(double latitude, double longitude, DateTime date, string? timezone, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Fetching astronomy data for Lat: {Latitude}, Lon: {Longitude}, Date: {Date}", latitude, longitude, date);
+        
+        string dailyParams = "sunrise,sunset,daylight_duration,sunshine_duration";
+        string dateString = date.ToString("yyyy-MM-dd");
+
+        var response = await _client.GetForecastAsync(
+            latitude, 
+            longitude, 
+            false, 
+            null, 
+            null, 
+            timezone ?? "auto", 
+            dailyParams, 
+            null, 
+            null, 
+            dateString, 
+            dateString, 
+            cancellationToken);
+
+        if (response?.Daily == null || response.Daily.Time.Count == 0)
+        {
+            throw new Exception("Failed to retrieve astronomy data from Open-Meteo.");
+        }
+
+        return new ProviderAstronomyDto
+        {
+            Sunrise = DateTime.Parse(response.Daily.Sunrise[0]),
+            Sunset = DateTime.Parse(response.Daily.Sunset[0]),
+            DaylightDuration = response.Daily.DaylightDuration[0],
+            SunshineDuration = response.Daily.SunshineDuration[0]
+        };
     }
 }
