@@ -18,6 +18,6 @@ public class HourlyWeatherCodeResolver : IValueResolver<ProviderHourlyForecastDt
     public WeatherConditionDto Resolve(ProviderHourlyForecastDto source, HourlyForecastDto destination, WeatherConditionDto destMember, ResolutionContext context)
     {
         var normalized = _mapper.MapToNormalizedCondition(source.WeatherCode);
-        return new WeatherConditionDto { Code = normalized.Name, Description = normalized.Description };
+        return new WeatherConditionDto { Code = normalized.Name, Description = normalized.Description, ProviderCode = normalized.ProviderCode };
     }
 }

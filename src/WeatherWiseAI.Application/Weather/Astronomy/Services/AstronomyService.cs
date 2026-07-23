@@ -10,38 +10,44 @@ using WeatherWiseAI.Application.Weather.Astronomy.Responses;
 
 public class AstronomyService : IAstronomyService
 {
-    public Task<AstronomyResponse> GetAstronomyDataAsync(AstronomyRequest request, CancellationToken cancellationToken = default)
+    private readonly WeatherWiseAI.Application.Interfaces.IWeatherProvider _weatherProvider;
+
+    public AstronomyService(WeatherWiseAI.Application.Interfaces.IWeatherProvider weatherProvider)
+    {
+        _weatherProvider = weatherProvider;
+    }
+
+    public async Task<AstronomyResponse> GetAstronomyDataAsync(AstronomyRequest request, CancellationToken cancellationToken = default)
     {
         var targetDate = request.Date ?? DateTime.UtcNow;
-        var c = new Coordinate(request.Latitude, request.Longitude, targetDate);
+        
+        // Fetch data from Open-Meteo
+        var providerData = await _weatherProvider.GetAstronomyDataAsync(request.Latitude, request.Longitude, targetDate, "auto", cancellationToken);
 
+        // Fetch lunar data from CoordinateSharp
+        var c = new Coordinate(request.Latitude, request.Longitude, targetDate);
         var celestial = c.CelestialInfo;
         
-        // Handle polar regions where sun might not set or rise
-        var sunrise = celestial.SunRise ?? targetDate.Date.AddHours(6); 
-        var sunset = celestial.SunSet ?? targetDate.Date.AddHours(18);
-        
-        var dayLength = sunset - sunrise;
-        if (dayLength.TotalHours < 0) dayLength = TimeSpan.FromHours(24) + dayLength;
-
-        // Calculate solar noon manually if CoordinateSharp doesn't expose it directly
-        var solarNoon = sunrise + TimeSpan.FromTicks(dayLength.Ticks / 2);
-
-        var moonPhaseName = celestial.MoonIllum.PhaseName; 
+        // Calculate solar noon manually using Open-Meteo's daylight duration (or falling back to standard math)
+        var dayLength = TimeSpan.FromSeconds(providerData.DaylightDuration);
+        var solarNoon = providerData.Sunrise + TimeSpan.FromTicks(dayLength.Ticks / 2);
 
         var response = new AstronomyResponse
         {
             Latitude = request.Latitude,
             Longitude = request.Longitude,
             Date = targetDate,
-            Sunrise = sunrise,
-            Sunset = sunset,
+            Sunrise = providerData.Sunrise,
+            Sunset = providerData.Sunset,
             SolarNoon = solarNoon,
             DayLength = dayLength,
-            MoonPhaseName = moonPhaseName,
-            MoonIllumination = celestial.MoonIllum.Fraction * 100 // Convert to percentage
+            SunshineDuration = TimeSpan.FromSeconds(providerData.SunshineDuration),
+            MoonPhaseName = celestial.MoonIllum.PhaseName,
+            MoonIllumination = celestial.MoonIllum.Fraction * 100, // Convert to percentage
+            MoonRise = celestial.MoonRise,
+            MoonSet = celestial.MoonSet
         };
 
-        return Task.FromResult(response);
+        return response;
     }
 }

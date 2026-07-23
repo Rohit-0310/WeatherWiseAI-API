@@ -16,6 +16,8 @@ public interface IOpenMeteoClient
         [AliasAs("daily")] string? daily = null,
         [AliasAs("hourly")] string? hourly = null,
         [AliasAs("forecast_hours")] int? forecastHours = null,
+        [AliasAs("start_date")] string? startDate = null,
+        [AliasAs("end_date")] string? endDate = null,
         CancellationToken cancellationToken = default);
 
     [Get("/v1/search")]

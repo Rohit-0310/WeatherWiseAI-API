@@ -19,4 +19,16 @@ public class OpenMeteoDailyDto
 
     [JsonPropertyName("windspeed_10m_max")]
     public List<double> WindSpeedMax { get; set; } = new();
+
+    [JsonPropertyName("sunrise")]
+    public List<string> Sunrise { get; set; } = new();
+
+    [JsonPropertyName("sunset")]
+    public List<string> Sunset { get; set; } = new();
+
+    [JsonPropertyName("daylight_duration")]
+    public List<double> DaylightDuration { get; set; } = new();
+
+    [JsonPropertyName("sunshine_duration")]
+    public List<double> SunshineDuration { get; set; } = new();
 }
