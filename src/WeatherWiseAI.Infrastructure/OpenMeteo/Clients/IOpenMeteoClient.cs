@@ -10,6 +10,7 @@ public interface IOpenMeteoClient
         [Query] double latitude, 
         [Query] double longitude, 
         [AliasAs("current_weather")] bool currentWeather = true,
+        [AliasAs("current")] string? current = null,
         [AliasAs("temperature_unit")] string? temperatureUnit = null,
         [AliasAs("windspeed_unit")] string? windSpeedUnit = null,
         [AliasAs("timezone")] string? timezone = null,
@@ -34,5 +35,12 @@ public interface IOpenMeteoClient
         [Query] double longitude,
         [Query] int count = 1,
         [Query] string language = "en",
+        CancellationToken cancellationToken = default);
+
+    [Get("/v1/air-quality")]
+    Task<OpenMeteoAirQualityResponse> GetAirQualityAsync(
+        [Query] double latitude,
+        [Query] double longitude,
+        [AliasAs("current")] string current = "european_aqi,us_aqi",
         CancellationToken cancellationToken = default);
 }

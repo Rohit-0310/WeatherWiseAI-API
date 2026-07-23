@@ -25,6 +25,9 @@ public class OpenMeteoResponse
     [JsonPropertyName("current_weather")]
     public CurrentWeatherDto? CurrentWeather { get; set; }
 
+    [JsonPropertyName("current")]
+    public OpenMeteoCurrentDto? Current { get; set; }
+
     [JsonPropertyName("daily")]
     public OpenMeteoDailyDto? Daily { get; set; }
 
@@ -48,4 +51,37 @@ public class CurrentWeatherDto
 
     [JsonPropertyName("time")]
     public string Time { get; set; } = string.Empty;
+}
+
+public class OpenMeteoCurrentDto
+{
+    [JsonPropertyName("time")]
+    public string Time { get; set; } = string.Empty;
+
+    [JsonPropertyName("temperature_2m")]
+    public double Temperature { get; set; }
+
+    [JsonPropertyName("apparent_temperature")]
+    public double ApparentTemperature { get; set; }
+
+    [JsonPropertyName("relative_humidity_2m")]
+    public double RelativeHumidity { get; set; }
+
+    [JsonPropertyName("surface_pressure")]
+    public double SurfacePressure { get; set; }
+
+    [JsonPropertyName("visibility")]
+    public double Visibility { get; set; }
+
+    [JsonPropertyName("wind_speed_10m")]
+    public double WindSpeed { get; set; }
+
+    [JsonPropertyName("wind_direction_10m")]
+    public double WindDirection { get; set; }
+
+    [JsonPropertyName("weather_code")]
+    public int WeatherCode { get; set; }
+
+    [JsonPropertyName("is_day")]
+    public int IsDay { get; set; }
 }
