@@ -75,7 +75,7 @@ public class OpenMeteoWeatherProvider : IWeatherProvider
             currentWeather: false,
             temperatureUnit: tempUnit,
             windSpeedUnit: windUnit,
-            timezone: timezone,
+            timezone: timezone ?? "auto",
             daily: dailyParams,
             cancellationToken: cancellationToken);
         
@@ -96,7 +96,7 @@ public class OpenMeteoWeatherProvider : IWeatherProvider
             currentWeather: false,
             temperatureUnit: tempUnit,
             windSpeedUnit: windUnit,
-            timezone: timezone,
+            timezone: timezone ?? "auto",
             hourly: hourlyParams,
             forecastHours: hours,
             cancellationToken: cancellationToken);
