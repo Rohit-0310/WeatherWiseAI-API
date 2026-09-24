@@ -26,6 +26,11 @@ public class ExceptionMiddleware
         {
             await _next(context);
         }
+        catch (Exception ex) when (ex is OperationCanceledException || ex.InnerException is OperationCanceledException)
+        {
+            _logger.LogInformation("Client cancelled the request.");
+            context.Response.StatusCode = 499; // Client Closed Request
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An unhandled exception occurred.");
