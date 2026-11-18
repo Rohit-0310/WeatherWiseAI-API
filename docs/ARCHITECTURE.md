@@ -1,101 +1,17 @@
 # Architecture
 
-The WeatherWiseAI-API is built using **Clean Architecture**. This approach ensures separation of concerns, testability, and independence from external frameworks and services.
+WeatherWiseAI API is a stateless ASP.NET Core service with Clean Architecture style boundaries. All persistent weather and location data comes from upstream providers. The application registers no database, ORM, or weather-response cache.
 
-## Clean Architecture Overview
+| Project | Actual responsibility | Direct project references |
+| --- | --- | --- |
+| Api | MVC routes, model binding, exception middleware, OpenAPI, health check, CORS and composition root | Application, Infrastructure, Shared |
+| Application | Feature services, DTOs, provider interfaces, validation rules, mapping and astronomy calculations | Domain, Shared |
+| Infrastructure | Refit Open-Meteo integration, BigDataCloud reverse lookup and typed HttpClient Gemini service | Application, Shared |
+| Domain | Reserved project, currently without domain entities | None |
+| Shared | Envelopes, results, error types, constants and exceptions | None |
 
-The solution is divided into concentric layers. The overriding rule is that **dependencies point inward**. Inner layers know nothing about outer layers.
+The browser in [WeatherWiseAI-Web](https://github.com/Rohit-0310/WeatherWiseAI-Web) sends requests through Axios to the API. Weather and location controllers delegate to scoped Application services and Infrastructure adapters. AutoMapper maps provider data to DTOs and normalizes Open-Meteo conditions. Current weather fetches forecast and air quality concurrently. The singleton condition mapper is shared. Astronomy combines Open-Meteo sunlight data with CoordinateSharp lunar calculations.
 
-```
-API Layer
-    ↓
-Infrastructure Layer
-    ↓
-Application Layer
-    ↓
-Domain Layer
-```
+The Refit client handles forecast, air-quality and search paths with host rewriting and Polly resilience. Reverse geocoding calls BigDataCloud through a separate HttpClient and falls back to a coordinate label. The AI controller injects the typed Gemini implementation through its Application interface. It sends client-supplied weather strings rather than invoking the weather context builder. The builder and prompt interfaces are foundations for future integration.
 
-*(The `Shared` project acts as a cross-cutting concern accessible by all layers.)*
-
-## Layer Responsibilities
-
-### 3. Application Layer (`WeatherWiseAI.Application`)
-
-Contains business logic, domain models, services, interfaces, CQRS elements, and mapping logic.
-
-**Key Modules:**
-*   **Weather Module:** Orchestrates external calls, validates incoming requests, and handles core domain logic (`WeatherService`, `ForecastService`, `HourlyService`).
-*   **Location Module:** Connects Geocoding API to resolve latitudes, longitudes, and string queries.
-*   **WeatherContext (Shared):** A deterministic, provider-agnostic aggregation layer (`WeatherContextBuilder`) that merges all weather, astronomy, and location data into a normalized single context graph and computes deterministic `AIHints`.
-*   **AI Module:** Contains prompt builders (`IPromptBuilder`), insights models, and abstractions ready for Gemini integration.
-
-**Rules:**
-*   Defines interfaces for external dependencies (e.g., `IWeatherProvider`, `ILocationProvider`).
-
-### Domain (`WeatherWiseAI.Domain`)
-Contains enterprise-wide business rules, models, and domain exceptions. It has no external dependencies.
-- **Models**: `WeatherCondition`, `AiInsight`.
-- **Exceptions**: `DomainValidationException`.
-
-### Infrastructure (`WeatherWiseAI.Infrastructure`)
-Contains concrete implementations of the Application interfaces. It manages all external HTTP communication.
-- **HTTP Clients**: Refit interfaces for Open-Meteo and Gemini.
-- **Prompt Builders**: Logic for constructing the exact strings sent to the Gemini API.
-
-### API (`WeatherWiseAI.Api`)
-The entry point of the application. It handles HTTP requests, routes them to Application services, and returns HTTP responses.
-- **Controllers**: Map HTTP requests to Application logic.
-- **Middleware**: Global exception handling.
-- **Configuration**: Dependency Injection setup.
-
-## Dependency Rules
-- `Api` references `Application` and `Infrastructure`.
-- `Infrastructure` references `Application`.
-- `Application` references `Domain`.
-- `Domain` references nothing.
-- `Shared` can be referenced by any project.
-
-## Request Flow
-
-1. **Client** sends HTTP Request to `API`.
-2. **Controller** receives the request.
-3. Request DTO is validated via **FluentValidation** pipeline.
-4. **Controller** invokes a service in the **Application Layer**.
-5. **Application Service** orchestrates the workflow.
-6. **Application Service** calls an interface implemented in the **Infrastructure Layer** to fetch weather data.
-7. **Application Service** calls another interface to generate AI insights based on the weather data.
-8. **Application Service** aggregates data into Domain models.
-9. **AutoMapper** maps Domain models to Response DTOs.
-10. **Controller** returns HTTP Response to the **Client**.
-
-## API Flow
-All external communications (Open-Meteo, Gemini) are managed via HTTP using **Refit** within the Infrastructure layer.
-- `IOpenMeteoClient` handles weather queries.
-- `IGeminiClient` handles prompt submissions.
-
-## AI Flow
-1. Fetch raw weather metrics (temperature, wind, precipitation).
-2. Pass raw data to a Prompt Builder.
-3. Send the structured prompt to the Google Gemini API.
-4. Parse the Gemini JSON/Text response.
-5. Return the generated insight to the Application layer.
-
-## Prompt Builder Flow
-The Infrastructure layer contains a dedicated component for building prompts.
-- Separates text generation logic from HTTP logic.
-- Uses string interpolation and templates to ensure consistent requests to Gemini.
-
-## DTO Mapping
-- Mapping happens strictly between `Domain` and `API` boundaries.
-- **AutoMapper** is configured in the Application layer.
-- Infrastructure receives and returns DTOs/Domain models as defined by Application interfaces.
-
-## Validation
-- Handled exclusively by **FluentValidation** in the Application layer.
-- A request is rejected before executing business logic if it fails validation.
-
-## Naming Conventions
-- **Controllers**: `<Entity>Controller`
-- **Services**: `<Feature>Service` (Application), `<Integration>Client` (Infrastructure)
-- **DTOs**: `<Action>Request`, `<Action>Response`
+[HTTP contract](API_GUIDELINES.md) · [Resilience and errors](ERROR_HANDLING.md) · [AI flow](PROMPT_ENGINEERING.md)

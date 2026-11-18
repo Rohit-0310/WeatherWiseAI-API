@@ -1,92 +1,41 @@
-# WeatherWiseAI-API
+# WeatherWiseAI API
 
-## Project Overview
+WeatherWiseAI API is an ASP.NET Core 10 service for the [WeatherWiseAI web dashboard](https://github.com/Rohit-0310/WeatherWiseAI-Web). It provides current weather with European AQI, hourly and daily forecasts, location search and reverse geocoding, solar and lunar information, and on-demand Gemini weather summaries, clothing recommendations and activity suggestions.
 
-WeatherWiseAI-API is an intelligent weather information service built on ASP.NET Core 10. It utilizes a Clean Architecture approach to aggregate real-time weather data from the Open-Meteo API and generate natural language weather summaries and insights using the Google Gemini API. This API is designed to be highly scalable, enterprise-ready, and fully stateless, with no internal database required.
+The stateless solution uses C#, ASP.NET Core, Refit and Polly for Open-Meteo, typed HttpClient for Gemini, AutoMapper, FluentValidation rule definitions, CoordinateSharp and Serilog. No database is required. [Architecture](docs/ARCHITECTURE.md)
 
-## Features
+## Run locally
 
-- **Real-Time Weather Data**: Fetches accurate and up-to-date weather information using the Open-Meteo API.
-- **AI-Powered Insights**: Leverages Google Gemini API to generate human-readable summaries and personalized weather insights.
-- **Stateless Architecture**: Operates without a database, relying purely on external service integrations, reducing complexity and increasing horizontal scalability.
-- **Robust Validation**: Employs FluentValidation for robust incoming request validation.
-- **Clean Architecture**: Ensures separation of concerns, high maintainability, and testability.
+Install the .NET 10 SDK and restore dependencies. Internet access is needed for NuGet and live provider calls. A Gemini key is required only for AI generation.
 
-## Technology Stack
-
-- **Framework**: ASP.NET Core 10 Web API
-- **Language**: C#
-- **Architecture**: Clean Architecture
-- **HTTP Client**: Refit
-- **Validation**: FluentValidation
-- **Object Mapping**: AutoMapper
-- **Logging**: Serilog
-- **External APIs**: Open-Meteo API, Google Gemini API
-- **Data Storage**: None (Stateless)
-
-## Solution Structure
-
-The project follows a standard Clean Architecture structure:
-
-- `WeatherWiseAI.Api`: Contains controllers, middleware, and application configuration.
-- `WeatherWiseAI.Application`: Contains business logic, interfaces, CQRS handlers (if applicable), and DTOs.
-- `WeatherWiseAI.Domain`: Contains core business models, entities, and enums.
-- `WeatherWiseAI.Infrastructure`: Owns all HTTP integrations (Open-Meteo, Gemini) and external service implementations.
-- `WeatherWiseAI.Shared`: Contains common utilities, constants, and extensions used across layers.
-
-## Getting Started
-
-### Prerequisites
-
-- .NET 10 SDK
-- An API Key for Google Gemini API
-
-### Installation
-
-1. Clone the repository:
-   ```bash
-   git clone <repository-url>
-   cd WeatherWiseAI-API
-   ```
-
-2. Restore dependencies:
-   ```bash
-   dotnet restore
-   ```
-
-## Environment Variables
-
-The application relies on the following environment variables for configuration. Create an `appsettings.Development.json` or configure your environment accordingly.
-
-- `Gemini:ApiKey`: Your Google Gemini API Key.
-- `OpenMeteo:BaseUrl`: The base URL for the Open-Meteo API (e.g., `https://api.open-meteo.com`).
-
-## Running the API
-
-To run the application locally:
-
-```bash
-cd src/WeatherWiseAI.Api
-dotnet run
+```sh
+dotnet restore WeatherWiseAI.slnx
+dotnet dev-certs https --trust
+dotnet run --project src/WeatherWiseAI.Api --launch-profile https
 ```
 
-The Swagger UI will be available at `https://localhost:<port>/swagger` (if configured in development).
+Open Swagger UI at **https://localhost:7008/** in Development. Its JSON is at `/swagger/v1/swagger.json`. The frontend expects `https://localhost:7008/api/v1` and must run at `http://localhost:3000` for the current CORS policy. Check the host with `curl https://localhost:7008/health`.
 
-## Documentation Index
+Set `Gemini__ApiKey` privately in the server process environment. Optional overrides are `Gemini__ModelName`, `Gemini__BaseUrl`, `OpenMeteo__BaseUrl` and `OpenMeteo__TimeoutSeconds`. ASP.NET Core uses double underscores for nested environment keys. The checked-in settings supply provider defaults. For configuration, logging and hosting guidance, see [deployment](docs/DEPLOYMENT.md).
 
-Comprehensive documentation can be found in the `/docs` directory:
+## API endpoints
 
-- [Architecture Guide](docs/ARCHITECTURE.md)
-- [API Guidelines](docs/API_GUIDELINES.md)
-- [Development Guide](docs/DEVELOPMENT_GUIDE.md)
-- [Prompt Engineering](docs/PROMPT_ENGINEERING.md)
-- [Coding Standards](docs/CODING_STANDARDS.md)
-- [Error Handling](docs/ERROR_HANDLING.md)
-- [Deployment](docs/DEPLOYMENT.md)
-- [Roadmap](docs/ROADMAP.md)
-- [Decisions](docs/DECISIONS.md)
-- [Changelog](docs/CHANGELOG.md)
+Business routes use `/api/v1`. They currently require no caller credentials. Gemini uses a server-side provider credential.
 
-## Future Roadmap
+| Method | Path under /api/v1 | Purpose |
+| --- | --- | --- |
+| GET | `/Weather/current` | Current conditions, daily metrics and AQI |
+| GET | `/Weather/hourly` | Hourly forecast |
+| GET | `/Weather/forecast` | Daily forecast |
+| GET | `/Weather/astronomy` | Solar and lunar data |
+| GET | `/Location/search` | Search by name |
+| GET | `/Location/reverse` | Resolve coordinates to a location |
+| POST | `/AiSummary` | Generate recommendations from supplied weather strings |
 
-Please refer to the [Roadmap](docs/ROADMAP.md) document for upcoming milestones, including advanced prompt engineering and expanded weather integration features.
+Weather and location GETs return a data envelope. AI success returns a plain object. See the [API reference](docs/API_GUIDELINES.md) for parameters, examples and errors.
+
+## Check and contribute
+
+Run `dotnet build WeatherWiseAI.slnx -c Release`. The solution currently has no automated test project. Follow the [smoke checks](docs/DEVELOPMENT_GUIDE.md) for integration changes. A framework-dependent publish procedure and current hosting constraints are in [deployment](docs/DEPLOYMENT.md).
+
+See the [documentation index](docs/README.md), [contribution guide](CONTRIBUTING.md), [security policy](SECURITY.md), and [draft v1.0.0 notes](docs/RELEASE_NOTES_V1.md). The project uses the [MIT License](LICENSE).
