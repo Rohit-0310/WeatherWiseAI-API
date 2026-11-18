@@ -1,38 +1,24 @@
-# Deployment Guide
+# API deployment
 
-This document covers the configuration and deployment strategy for WeatherWiseAI-API.
+Publish with the .NET 10 SDK and run the published DLL with the ASP.NET Core 10 runtime.
 
-## Configuration
-Configuration is managed via ASP.NET Core's `appsettings.json` and environment variables.
-
-### `appsettings.json`
-Contains non-sensitive, environment-agnostic configuration (e.g., Serilog setup, default API routes).
-
-### `appsettings.Development.json`
-Overrides for local development, enabling detailed logging and Swagger UI.
-
-## Environment Variables
-Sensitive data and environment-specific endpoints must be injected via Environment Variables.
-
-Required variables in Production:
-- `ASPNETCORE_ENVIRONMENT`: Set to `Production`.
-- `Gemini__ApiKey`: The secure API key for Google Gemini.
-- `OpenMeteo__BaseUrl`: The base URL for the Open-Meteo API.
-
-## Swagger
-- Swagger (Swashbuckle) is enabled in `Development` environments for easy testing.
-- In `Production`, Swagger is disabled to prevent exposing API contracts publicly unless explicitly required.
-
-## Release Build
-To prepare the application for deployment, build it in Release mode:
-
-```bash
-dotnet publish src/WeatherWiseAI.Api/WeatherWiseAI.Api.csproj -c Release -o ./out
+```sh
+dotnet publish src/WeatherWiseAI.Api -c Release -o artifacts/api
+dotnet artifacts/api/WeatherWiseAI.Api.dll
 ```
 
-## Production Deployment
-As a stateless web API, WeatherWiseAI-API is highly container-friendly.
+The example publishes a framework-dependent artifact. No deployment manifests or CI deployment workflow are committed. Configure the host's HTTPS listener or TLS termination and validate HTTPS redirects in the deployed topology. Expose `/health` for host checks. Swagger UI at `/` and its JSON are Development only. Use a writable log directory or configure collection of console/file logs and retention.
 
-1. **Docker**: A standard .NET ASP.NET Core Dockerfile should be used.
-2. **Hosting**: The container can be hosted on any cloud provider supporting containers (e.g., Azure App Service, AWS ECS, Google Cloud Run).
-3. **Scaling**: Since there is no database, you can scale horizontally infinitely behind a load balancer. Ensure external API rate limits (Gemini/Open-Meteo) are monitored when scaling.
+| Environment variable | Use |
+| --- | --- |
+| `ASPNETCORE_ENVIRONMENT` | Host environment. The HTTPS launch profile selects Development |
+| `Gemini__ApiKey` | Server-only provider secret required for AI calls |
+| `Gemini__ModelName`, `Gemini__BaseUrl` | Override checked-in Gemini model and provider URL |
+| `OpenMeteo__BaseUrl`, `OpenMeteo__TimeoutSeconds` | Forecast base URL and Refit HttpClient timeout |
+| `ASPNETCORE_URLS` | Standard ASP.NET Core hosting setting when configuring listeners outside launch profiles |
+
+ASP.NET Core loads `appsettings.json`, environment-specific settings and environment overrides. Supply the key through the deployment platform's secret injection. Check provider terms, quotas, egress and model availability before hosting. Geocoding and air-quality hosts are rewritten in code. BigDataCloud is also selected in code.
+
+Current browser CORS allows only `http://localhost:3000`. No origin configuration key is wired. The frontend also hardcodes the local API URL. Hosting at other origins requires an application change or separately designed routing. Evaluate public access controls, rate limits and AI quota protection before exposing the API. See [release gates](RELEASE_NOTES_V1.md).
+
+The local smoke test logged an AutoMapper license warning. Review the applicable dependency terms before hosting and keep any license credential private. The repository's MIT license covers the project. [AutoMapper licensing guidance](https://docs.automapper.io/en/latest/License-configuration.html)

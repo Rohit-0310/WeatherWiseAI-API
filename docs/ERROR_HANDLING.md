@@ -1,33 +1,18 @@
-# Error Handling
+# Errors, logging and resilience
 
-WeatherWiseAI-API employs a centralized error handling strategy to ensure consistent API responses and robust logging.
+| Source | HTTP behavior |
+| --- | --- |
+| Invalid MVC model state | 400, standard envelope with string errors |
+| Thrown FluentValidation exception | 400, standard envelope |
+| AppException | 400 by default, or 404/401 for the mapped codes |
+| UnauthorizedAccessException | 401, standard envelope |
+| Other unhandled exception | 500, generic message in the standard envelope |
+| OperationCanceledException or immediate inner cancellation | 499, no JSON body written by the handler |
+| Gemini upstream or parsing failure caught by the adapter | 400, nested error object |
+| BigDataCloud lookup failure | Normally 200 with coordinate fallback |
 
-## Global Exception Middleware
-- We use a custom ASP.NET Core Middleware to catch all unhandled exceptions globally.
-- The middleware formats the exception into a standard JSON response (see [API Guidelines](API_GUIDELINES.md)).
-- Stack traces are **never** leaked to the client in production.
-- Ensures a unified `500 Internal Server Error` format for unexpected crashes.
+The middleware logs unhandled exceptions and writes camel-case JSON. Framework and proxy responses can have other shapes. See [API reference](API_GUIDELINES.md).
 
-## Validation Failures
-- `FluentValidation` is integrated into the request pipeline.
-- If a request DTO is invalid, the pipeline short-circuits.
-- Returns a `400 Bad Request` with an array of specific validation error messages.
+Serilog writes to console and a daily rolling file under `logs/`. Open-Meteo logs outbound method, full URI, status and elapsed time. Coordinates and search text can appear in logs. Restrict access and retention. Gemini uses a credential in its outbound URL query string. Verify HTTP diagnostic logging and redaction before using a real key in shared environments. [Security](../SECURITY.md)
 
-## Integration Failures
-- The API relies on Open-Meteo and Google Gemini. These external services can fail.
-- Refit throws `ApiException` on non-success HTTP status codes.
-- The Infrastructure layer should catch these, log the failure, and throw a custom `IntegrationException` so the Application layer understands the external service failed without knowing the HTTP details.
-
-## Logging
-- We use **Serilog** for structured logging.
-- **Errors** are logged with full stack traces, request context, and correlation IDs.
-- **Warnings** are logged for validation failures or transient faults.
-
-## Retry Strategy
-- Transient HTTP failures (e.g., `503 Service Unavailable`, network timeouts) when calling Open-Meteo or Gemini should be handled using **Polly**.
-- A standard retry policy: Retry 3 times with exponential backoff (e.g., wait 2s, 4s, 8s).
-
-## Fallback Strategy
-- If the Gemini API fails entirely, the API should gracefully degrade.
-- Instead of returning a 500 error, the API can return the raw weather data with a hardcoded fallback insight (e.g., "AI insights are currently unavailable, but here is your raw weather data.").
-- If Open-Meteo fails, the request cannot be fulfilled, and a `502 Bad Gateway` should be returned indicating the upstream data provider is down.
+Open-Meteo has a configured HttpClient timeout (30 seconds by default) and Polly transient HTTP handling for request exceptions, 5xx responses and 408. Retries use delays of 2, 4 and 8 seconds. The circuit breaker opens after five consecutive handled failures and waits 30 seconds before probing. These policies do not cover Gemini or BigDataCloud. There is no stale weather cache or AI fallback. An air-quality request failure can fail the current-weather call.

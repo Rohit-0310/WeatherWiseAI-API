@@ -1,46 +1,14 @@
-# Project Roadmap
+# API roadmap
 
-This document outlines the development milestones for WeatherWiseAI-API.
+## Implemented
 
-## Phase 1: Project Setup
-- [x] Initialize ASP.NET Core 10 Web API project.
-- [x] Scaffold Clean Architecture solution structure.
-- [x] Configure Serilog for structured logging.
-- [x] Setup global exception handling middleware.
+Current weather and AQI, hourly and daily forecasts, location search and reverse geocoding, astronomy, Gemini summaries, Development Swagger, host health check, Open-Meteo resilience and structured logging are present. See the [API reference](API_GUIDELINES.md).
 
-## Phase 2: Weather Integration
-- [x] Define Open-Meteo response DTOs.
-- [x] Implement Refit interface for Open-Meteo API.
-- [x] Create `WeatherService` in Application layer to orchestrate fetch logic.
-- [x] Expose basic weather endpoints in API layer.
+## Proposed before v1.0.0
 
-## Phase 3: AI Integration
-- [ ] Register Google Gemini API Key in configurations.
-- [ ] Implement Refit interface for Google Gemini API.
-- [ ] Create `AiInsightService` in Application layer.
-- [x] Create provider-independent `WeatherContext` foundation.
+- Wire and test validation, clarify temperature/wind units in AI inputs, verify timezone handling and agree on error contracts.
+- Address dependency advisories, review logging redaction, configure CORS for target origins, and decide how to protect public provider quotas.
+- Add unit, contract and provider-failure tests with deterministic fixtures. Add CI and verify deployment and provider access.
+- Define compatibility and release policy for the public API.
 
-## Phase 4: Prompt Engineering
-- [x] Create Prompt Builder abstractions (`IPromptBuilder` interfaces).
-- [ ] Implement `PromptBuilder` for Gemini requests.
-- [ ] Define basic weather summary templates.
-- [ ] Add tone and style variations (e.g., formal, witty).
-- [ ] Test prompt robustness and handle hallucinations.
-
-## Phase 5: Testing
-- [ ] Setup xUnit/NUnit test projects.
-- [ ] Write unit tests for Application layer services.
-- [ ] Write unit tests for Prompt Builders.
-- [ ] Implement integration tests for controllers using WebApplicationFactory.
-
-## Phase 6: Deployment
-- [ ] Configure release build profiles.
-- [ ] Setup environment variable management.
-- [ ] Create Dockerfile.
-- [ ] Setup CI/CD pipeline (e.g., GitHub Actions).
-
-## Phase 7: Future Enhancements
-- [ ] Multi-language support for AI insights.
-- [ ] User preference mapping (via headers or JWT claims) to customize AI tone.
-- [ ] Caching integration (Redis or InMemory) to reduce external API calls.
-- [ ] Rate limiting middleware.
+Provider caching, richer weather context for AI, and additional weather products remain proposals. See [draft release notes](RELEASE_NOTES_V1.md).

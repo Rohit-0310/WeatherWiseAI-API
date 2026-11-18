@@ -5,7 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.1.0] - Initial Release
+## [Unreleased]
+
+- Document current astronomy, reverse geocoding and Gemini flows, validation coverage, response formats and deployment limits.
+- Add contributor and security guidance, a cross-repository audit and a draft v1.0.0 release assessment.
+
+## [0.1.0] - Historical project milestone
 
 ### Added
 - Project initialization.

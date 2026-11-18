@@ -1,36 +1,7 @@
-# Prompt Engineering Guide
+# Gemini prompt and output
 
-This document outlines the strategy for generating high-quality AI insights using the Google Gemini API.
+`GeminiAiSummaryService` builds one inline prompt from the six strings accepted by [the AI endpoint](API_GUIDELINES.md). It asks for a brief summary, clothing recommendation and outdoor activity suggestion. The controller passes client-provided values. It does not fetch a verified forecast or invoke the Application weather context builder.
 
-## How Prompts are Built
-Prompts are constructed dynamically in the `Infrastructure` layer. The application takes structured weather data (temperature, wind, conditions) and formats it into natural language instructions before sending it to Gemini.
+The typed HttpClient calls Gemini `generateContent` using the configured model. Generation settings are temperature 0.7, maximum output of 2,048 tokens and JSON response MIME type. The adapter reads the first candidate's first text part, trims optional Markdown fences and deserializes case-insensitively to the response DTO. It does not enforce a response schema or require nonempty fields. Empty output, parse exceptions and provider errors follow the [AI error path](ERROR_HANDLING.md).
 
-## Prompt Builder Strategy
-- **Separation of Concerns**: The logic for building prompts is decoupled from the HTTP client. 
-- **Builder Pattern**: We use classes dedicated solely to constructing the prompt string based on the provided Domain models.
-- **Context Injection**: Prompts must explicitly instruct the AI on its role ("You are a helpful weather assistant") and format ("Provide a concise summary").
-
-## Prompt Templates
-We utilize C# string interpolation (`$"{...}"`) to inject data into predefined templates.
-
-*Example Template:*
-> You are a witty weather forecaster. The current temperature is {Temperature}°C with {WindSpeed}km/h winds. The condition is {Condition}. Write a short, engaging 2-sentence summary for a user.
-
-## Temperature Strategy
-- **Low Temperature (0.1 - 0.3)**: Used when factual accuracy is paramount (e.g., severe weather warnings).
-- **Medium Temperature (0.4 - 0.7)**: Default setting for general weather summaries to allow natural language variation while remaining accurate.
-- **High Temperature (0.8+)**: Avoided, to prevent hallucinated weather data.
-
-## Output Validation
-- We instruct Gemini to return plain text or structured JSON.
-- If JSON is requested, we use strong deserialization. If the structure is malformed, we catch the exception and fall back gracefully.
-- The Application layer validates that the AI response is not null or empty before returning it to the user.
-
-## Safety
-- **Prompt Injection**: User input is not directly concatenated into prompts. If location names are used, they are validated against strict regex or alphanumeric rules.
-- **Content Filtering**: Gemini's built-in safety settings are configured to block hate speech, harassment, and dangerous content.
-
-## Future Prompt Improvements
-- **Few-Shot Prompting**: Include examples of good weather summaries within the prompt to guide the AI's tone.
-- **System Instructions**: Migrate to using explicit System Prompts if supported by the specific Gemini API endpoint utilized.
-- **User Personas**: Allow prompts to be tweaked based on user preferences (e.g., "explain it for a runner" vs "explain it for a gardener").
+Application prompt interfaces and the weather context builder exist as extension points. Extracting the inline prompt, adding input bounds and evaluation fixtures, enforcing response fields and assessing prompt injection and weather advice are proposed improvements. Treat generated text as advisory. Keep keys and private data out of prompts, documentation and tests.
