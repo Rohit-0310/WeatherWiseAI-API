@@ -1,4 +1,7 @@
 <Solution>
+  <Folder Name="/tests/">
+    <Project Path="tests/WeatherWiseAI.Api.Tests/WeatherWiseAI.Api.Tests.csproj" />
+  </Folder>
   <Project Path="src/WeatherWiseAI.Api/WeatherWiseAI.Api.csproj" />
   <Project Path="src/WeatherWiseAI.Application/WeatherWiseAI.Application.csproj" />
   <Project Path="src/WeatherWiseAI.Domain/WeatherWiseAI.Domain.csproj" />

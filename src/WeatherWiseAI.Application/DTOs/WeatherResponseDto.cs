@@ -13,7 +13,7 @@ public class WeatherResponseDto
     public double Visibility { get; set; }
     public double WindDirection { get; set; }
     public int IsDay { get; set; }
-    public int Aqi { get; set; }
+    public int? Aqi { get; set; }
     public double MaxTemperature { get; set; }
     public double MinTemperature { get; set; }
     public double UvIndex { get; set; }

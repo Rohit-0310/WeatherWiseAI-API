@@ -34,7 +34,9 @@ try
         options.AddPolicy("AllowFrontend",
             policy =>
             {
-                policy.WithOrigins("http://localhost:3000")
+                var origins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+                    ?? (builder.Environment.IsDevelopment() ? ["http://localhost:3000"] : Array.Empty<string>());
+                policy.WithOrigins(origins)
                       .AllowAnyHeader()
                       .AllowAnyMethod();
             });
@@ -76,3 +78,5 @@ finally
 {
     Log.CloseAndFlush();
 }
+
+public partial class Program { }

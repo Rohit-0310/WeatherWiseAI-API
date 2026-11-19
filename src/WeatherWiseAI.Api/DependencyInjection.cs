@@ -10,7 +10,7 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApiServices(this IServiceCollection services)
     {
-        services.AddControllers()
+        services.AddControllers(options => options.Filters.Add<RequestValidationFilter>())
             .ConfigureApiBehaviorOptions(options =>
             {
                 options.InvalidModelStateResponseFactory = context =>

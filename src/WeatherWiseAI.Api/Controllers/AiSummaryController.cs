@@ -21,9 +21,9 @@ public class AiSummaryController : ControllerBase
     [HttpPost]
     [ProducesResponseType(typeof(AiSummaryResponse), 200)]
     [ProducesResponseType(400)]
-    public async Task<IActionResult> GenerateSummary([FromBody] AiSummaryRequest request)
+    public async Task<IActionResult> GenerateSummary([FromBody] AiSummaryRequest request, CancellationToken cancellationToken)
     {
-        var result = await _aiSummaryService.GenerateSummaryAsync(request);
+        var result = await _aiSummaryService.GenerateSummaryAsync(request, cancellationToken);
 
         if (result.IsSuccess)
         {

@@ -19,6 +19,8 @@ The example publishes a framework-dependent artifact. No deployment manifests or
 
 ASP.NET Core loads `appsettings.json`, environment-specific settings and environment overrides. Supply the key through the deployment platform's secret injection. Check provider terms, quotas, egress and model availability before hosting. Geocoding and air-quality hosts are rewritten in code. BigDataCloud is also selected in code.
 
-Current browser CORS allows only `http://localhost:3000`. No origin configuration key is wired. The frontend also hardcodes the local API URL. Hosting at other origins requires an application change or separately designed routing. Evaluate public access controls, rate limits and AI quota protection before exposing the API. See [release gates](RELEASE_NOTES_V1.md).
+Set `Cors__AllowedOrigins__0` to the exact Web origin. Set the frontend build variable `NEXT_PUBLIC_WEATHER_API_URL` to the API base including /api/v1. Public quota protection and hosting validation remain pending.
 
 The local smoke test logged an AutoMapper license warning. Review the applicable dependency terms before hosting and keep any license credential private. The repository's MIT license covers the project. [AutoMapper licensing guidance](https://docs.automapper.io/en/latest/License-configuration.html)
+
+CoordinateSharp 3.4.1.1 includes AGPLv3 and commercial licensing options. Confirm the applicable license for the intended distribution or hosted service.
