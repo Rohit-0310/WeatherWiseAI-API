@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- Restore contributor workflows, request walkthroughs and the inventory of earlier documentation sections.
+
 - Document current astronomy, reverse geocoding and Gemini flows, validation coverage, response formats and deployment limits.
 - Add contributor and security guidance, a cross-repository audit and a draft v1.0.0 release assessment.
 
@@ -21,7 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Weekly Forecast feature (7-day structured forecast API, normalized weather codes).
 - Hourly Forecast feature (24-48hr structured API).
 - Centralized WeatherConditionMapper (Shared DTOs & Services).
-- Location Module (Search & Reverse geocoding via Open-Meteo).
+- Location module for search and reverse geocoding. Current adapters use Open-Meteo for search and BigDataCloud for reverse lookup.
 - WeatherContext foundation (Unified cross-service data builder for AI contexts, AI hints evaluation).
 - Provider-independent WeatherConditionMapper (Normalizes Open-Meteo codes to standardized text strings).
 - Initial scaffolding for AI module (Prompt Builder abstractions, structural directories).
