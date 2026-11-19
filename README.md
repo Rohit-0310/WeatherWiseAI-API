@@ -39,3 +39,7 @@ Weather and location GETs return a data envelope. AI success returns a plain obj
 Run `dotnet build WeatherWiseAI.slnx -c Release`. The solution currently has no automated test project. Follow the [smoke checks](docs/DEVELOPMENT_GUIDE.md) for integration changes. A framework-dependent publish procedure and current hosting constraints are in [deployment](docs/DEPLOYMENT.md).
 
 See the [documentation index](docs/README.md), [contribution guide](CONTRIBUTING.md), [security policy](SECURITY.md), and [draft v1.0.0 notes](docs/RELEASE_NOTES_V1.md). The project uses the [MIT License](LICENSE).
+
+## Follow a request through the solution
+
+Start with [an hourly forecast](docs/ARCHITECTURE.md#trace-an-hourly-forecast) to see how the controller, application service and provider cooperate. For generated recommendations, follow [the AI suggestion path](docs/ARCHITECTURE.md#trace-an-ai-suggestion). Contributors extending either path can use the [development guide](docs/DEVELOPMENT_GUIDE.md) and [roadmap](docs/ROADMAP.md).

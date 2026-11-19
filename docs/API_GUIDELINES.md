@@ -34,3 +34,15 @@ GET response shape is `{"data": ..., "success": true, "errors": [], "meta": null
 AI provider failures return HTTP 400 with `{"error":{"message":"...","code":null,"details":[]}}`. Model-binding and handled exception errors use the GET-style envelope with `success: false`. See [error handling](ERROR_HANDLING.md).
 
 FluentValidation rules describe hourly bounds of 1–48, search count 1–100 and minimum query length 2. The API registers the validators in DI but currently neither enables MVC auto-validation nor calls them in these request paths. Clients should send values within the stated bounds. Astronomy has DataAnnotations range checks. Non-nullable numeric DTO properties can default to zero when omitted. Swagger lists route schemas in Development.
+
+## Try the two response formats
+
+For a one-hour forecast, request `GET /api/v1/Weather/hourly?latitude=28.61&longitude=77.21&hours=1&units=Metric`. Read `data.timezone` and `data.units` alongside `data.hours[0]`. Each hour includes time, temperature, windSpeed, precipitationChance and condition. An empty location search is a successful list response and should be handled independently of HTTP failures.
+
+Submit the six-field JSON example above to `POST /api/v1/AiSummary` using the Development Swagger UI. A synthetic example of its success body is:
+
+```json
+{"summary":"Rain is likely.","clothing":"Bring a raincoat.","activity":"Choose an indoor activity."}
+```
+
+The route prefix fixes the public version at v1. A change to wrapping, units, field names or enforcement of previously inactive validation needs a compatibility review with the browser client. Search count and forecast hours limit individual results. There is no cursor or next-page contract.

@@ -19,3 +19,7 @@
 - Resolve the advisory findings, wire request validators, add tests, verify data and timezone semantics, and review error contracts, CORS, rate limiting and credential logging. Verify live providers, hosting and frontend integration before approving a stable version. [Audit](DOCUMENTATION_AUDIT.md)
 
 The Runtime smoke test also emitted an AutoMapper license warning. Review applicable terms and resolve licensing before deployment. [AutoMapper licensing guidance](https://docs.automapper.io/en/latest/License-configuration.html)
+
+## Documentation recheck on 2026-11-19
+
+The Release build completed with zero errors and 12 repeated NU1903 warnings covering the two AutoMapper advisories above. Test discovery produced no test cases. The documentation checks covered local links and examples against source. Live provider requests, browser behavior and deployment were outside this recheck.
