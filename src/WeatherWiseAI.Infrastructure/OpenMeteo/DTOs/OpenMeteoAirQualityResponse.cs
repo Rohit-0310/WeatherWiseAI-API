@@ -11,7 +11,7 @@ public class OpenMeteoAirQualityResponse
 public class OpenMeteoAirQualityCurrentDto
 {
     [JsonPropertyName("european_aqi")]
-    public int EuropeanAqi { get; set; }
+    public int? EuropeanAqi { get; set; }
 
     [JsonPropertyName("us_aqi")]
     public int UsAqi { get; set; }

@@ -10,7 +10,7 @@ dotnet build WeatherWiseAI.slnx -c Release
 dotnet test WeatherWiseAI.slnx --list-tests
 ```
 
-The solution has no test project, so an empty discovery or successful `dotnet test` exit does not establish automated coverage. For manual verification, start the HTTPS development profile, check `/health` and Swagger, then exercise all GET routes with known coordinates. Check metric/imperial values, search and reverse results, malformed inputs, and frontend CORS. Run AI generation with a privately configured key and check both success and failure response shapes. Live provider checks require outbound access. Use synthetic weather values and record outcomes without provider keys or sensitive logs.
+Run `dotnet test WeatherWiseAI.slnx -c Release` to execute the xUnit HTTP contract suite. For manual verification, start the HTTPS development profile, check `/health` and Swagger, then exercise all GET routes with known coordinates. Check metric/imperial values, search and reverse results, malformed inputs, and frontend CORS. Run AI generation with a privately configured key and check both success and failure response shapes. Live provider checks require outbound access. Use synthetic weather values and record outcomes without provider keys or sensitive logs.
 
 ## Extend an existing weather feature
 

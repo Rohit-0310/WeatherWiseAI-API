@@ -1,0 +1,13 @@
+name: API checks
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - run: dotnet restore WeatherWiseAI.slnx
+      - run: dotnet build WeatherWiseAI.slnx -c Release --no-restore
+      - run: dotnet test WeatherWiseAI.slnx -c Release --no-build

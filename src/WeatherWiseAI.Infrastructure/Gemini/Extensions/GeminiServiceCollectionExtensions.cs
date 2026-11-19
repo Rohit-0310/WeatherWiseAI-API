@@ -18,7 +18,7 @@ public static class GeminiServiceCollectionExtensions
         {
             var options = geminiSection.Get<GeminiOptions>();
             client.BaseAddress = new Uri(options?.BaseUrl ?? "https://generativelanguage.googleapis.com");
-        });
+        }).RedactLoggedHeaders(["x-goog-api-key"]);
 
         return services;
     }

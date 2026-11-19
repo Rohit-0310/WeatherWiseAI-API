@@ -33,7 +33,7 @@ GET response shape is `{"data": ..., "success": true, "errors": [], "meta": null
 
 AI provider failures return HTTP 400 with `{"error":{"message":"...","code":null,"details":[]}}`. Model-binding and handled exception errors use the GET-style envelope with `success: false`. See [error handling](ERROR_HANDLING.md).
 
-FluentValidation rules describe hourly bounds of 1–48, search count 1–100 and minimum query length 2. The API registers the validators in DI but currently neither enables MVC auto-validation nor calls them in these request paths. Clients should send values within the stated bounds. Astronomy has DataAnnotations range checks. Non-nullable numeric DTO properties can default to zero when omitted. Swagger lists route schemas in Development.
+Registered FluentValidation rules run before controller actions. Hourly requests accept 1 to 48 hours (default 24). Search accepts count 1 to 100 and at least two characters. Errors return a 400 envelope. Astronomy also uses DataAnnotations. A missing numeric property may bind to zero.
 
 ## Try the two response formats
 

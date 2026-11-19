@@ -8,7 +8,7 @@
 | Use BigDataCloud for reverse geocoding | Direct HTTP adapter supplies a coordinate fallback. Timezone is a GMT placeholder |
 | Use Gemini through a typed HttpClient | Server manages credentials. Generated text depends on supplied inputs, model availability and quotas |
 | Use AutoMapper and a shared condition mapper | Provider DTOs and condition codes are translated before reaching callers |
-| Define FluentValidation rules in Application | Rules are registered. Wiring them into MVC requests remains open |
+| Define FluentValidation rules in Application | Registered rules run in an asynchronous MVC action filter |
 
 For a new decision, document context, chosen approach, alternatives and trade-offs. Keep planned changes separate from the current [architecture](ARCHITECTURE.md).
 

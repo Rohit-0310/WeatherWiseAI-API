@@ -1,5 +1,13 @@
 # Draft API release notes for v1.0.0
 
+**Status: unreleased.** The local remediation branch passed 19 xUnit contract and mapping checks. A production Web build also completed a city search, forecast-detail view, unit switch and AI request against actual API controllers with local provider fixtures. The Release build succeeds and a refreshed NuGet scan reports no vulnerable packages, including transitive dependencies.
+
+Changes affecting clients include HTTP 400 for out-of-bounds requests, nullable AQI for missing measurements, rejection of incomplete AI responses and configurable CORS origins. Existing successful GET envelopes and AI response fields are preserved.
+
+Public Gemini access and quota protection, provider licensing, live integration, and hosted HTTPS remain release decisions. CoordinateSharp 3.4.1.1 lists AGPLv3 and commercial options in its package license. Confirm applicable terms before deployment. Maintainers still need to verify the private reporting channel.
+
+## Historical audit evidence
+
 **Status: unreleased and not ready for stable release.** Source baseline `cbaddc1`. The audit changed documentation only. This draft does not establish a published version or deployment.
 
 ## Verified in source

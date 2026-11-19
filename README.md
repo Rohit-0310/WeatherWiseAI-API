@@ -16,7 +16,7 @@ dotnet run --project src/WeatherWiseAI.Api --launch-profile https
 
 Open Swagger UI at **https://localhost:7008/** in Development. Its JSON is at `/swagger/v1/swagger.json`. The frontend expects `https://localhost:7008/api/v1` and must run at `http://localhost:3000` for the current CORS policy. Check the host with `curl https://localhost:7008/health`.
 
-Set `Gemini__ApiKey` privately in the server process environment. Optional overrides are `Gemini__ModelName`, `Gemini__BaseUrl`, `OpenMeteo__BaseUrl` and `OpenMeteo__TimeoutSeconds`. ASP.NET Core uses double underscores for nested environment keys. The checked-in settings supply provider defaults. For configuration, logging and hosting guidance, see [deployment](docs/DEPLOYMENT.md).
+Set `Gemini__ApiKey` privately in the server process environment. Optional overrides are `Gemini__ModelName`, `Gemini__BaseUrl`, `OpenMeteo__BaseUrl` and `OpenMeteo__TimeoutSeconds`. Set `Cors__AllowedOrigins__0` (and additional numbered entries) to override the Development browser origin. Other environments default to an empty allowlist. ASP.NET Core uses double underscores for nested environment keys. The checked-in settings supply provider defaults. For configuration, logging and hosting guidance, see [deployment](docs/DEPLOYMENT.md).
 
 ## API endpoints
 
@@ -36,7 +36,7 @@ Weather and location GETs return a data envelope. AI success returns a plain obj
 
 ## Check and contribute
 
-Run `dotnet build WeatherWiseAI.slnx -c Release`. The solution currently has no automated test project. Follow the [smoke checks](docs/DEVELOPMENT_GUIDE.md) for integration changes. A framework-dependent publish procedure and current hosting constraints are in [deployment](docs/DEPLOYMENT.md).
+Run `dotnet build WeatherWiseAI.slnx -c Release`. Run `dotnet test WeatherWiseAI.slnx -c Release` for fixture-backed HTTP contract tests. Follow the [smoke checks](docs/DEVELOPMENT_GUIDE.md) for integration changes. A framework-dependent publish procedure and current hosting constraints are in [deployment](docs/DEPLOYMENT.md).
 
 See the [documentation index](docs/README.md), [contribution guide](CONTRIBUTING.md), [security policy](SECURITY.md), and [draft v1.0.0 notes](docs/RELEASE_NOTES_V1.md). The project uses the [MIT License](LICENSE).
 

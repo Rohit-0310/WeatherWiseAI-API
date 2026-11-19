@@ -55,9 +55,11 @@ public class GeminiAiSummaryService : IAiSummaryService
                 }
             };
 
-            var url = $"/v1beta/models/{_options.ModelName}:generateContent?key={_options.ApiKey}";
+            var url = $"/v1beta/models/{_options.ModelName}:generateContent";
 
-            var response = await _httpClient.PostAsJsonAsync(url, geminiRequest, cancellationToken);
+            using var message = new HttpRequestMessage(HttpMethod.Post, url) { Content = JsonContent.Create(geminiRequest) };
+            message.Headers.Add("x-goog-api-key", _options.ApiKey);
+            using var response = await _httpClient.SendAsync(message, cancellationToken);
             response.EnsureSuccessStatusCode();
 
             var geminiResponse = await response.Content.ReadFromJsonAsync<GeminiResponse>(cancellationToken: cancellationToken);
@@ -85,12 +87,17 @@ public class GeminiAiSummaryService : IAiSummaryService
             textResult = textResult.Trim();
 
             var resultObj = JsonSerializer.Deserialize<AiSummaryResponse>(textResult, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-            if (resultObj == null)
+            if (resultObj == null || string.IsNullOrWhiteSpace(resultObj.Summary) ||
+                string.IsNullOrWhiteSpace(resultObj.Clothing) || string.IsNullOrWhiteSpace(resultObj.Activity))
             {
                 return Result<AiSummaryResponse>.Failure(new ApiError { Message = "Failed to parse AI summary JSON." });
             }
 
             return Result<AiSummaryResponse>.Success(resultObj);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {
